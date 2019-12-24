@@ -1,0 +1,13 @@
+12:26:40 **** Incremental Build of configuration Debug for project MBTCP_Software_Project ****
+make -j4 all 
+arm-none-eabi-size   MBTCP_Software_Project.elf 
+arm-none-eabi-objcopy  -O srec  MBTCP_Software_Project.elf  "MBTCP_Software_Project.srec"
+   text	   data	    bss	    dec	    hex	filename
+   5640	     12	   1572	   7224	   1c38	MBTCP_Software_Project.elf
+Finished building: default.size.stdout
+ 
+Finished building: MBTCP_Software_Project.srec
+ 
+
+12:26:41 Build Finished. 0 errors, 0 warnings. (took 860ms)
+
