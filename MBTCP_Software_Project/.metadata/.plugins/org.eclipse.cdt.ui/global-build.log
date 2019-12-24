@@ -1,10 +1,17 @@
-12:26:40 **** Incremental Build of configuration Debug for project MBTCP_Software_Project ****
+18:32:34 **** Incremental Build of configuration Debug for project MBTCP_Software_Project ****
 make -j4 all 
-arm-none-eabi-size   MBTCP_Software_Project.elf 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m0plus -std=gnu11 -g3 -DUSE_HAL_DRIVER -DSTM32L073xx -DDEBUG -c -I../Drivers/CMSIS/Include -I../Core/Inc -I../Drivers/STM32L0xx_HAL_Driver/Inc -I../Drivers/CMSIS/Device/ST/STM32L0xx/Include -I../Drivers/STM32L0xx_HAL_Driver/Inc/Legacy -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfloat-abi=soft -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "MBTCP_Software_Project.elf" @"objects.list"   -mcpu=cortex-m0plus -T"C:\Users\eoberholzer\Documents\Projects\Modbus TCP_IP Weather Device\Software\Git\MBTCP_Software_Project\MBTCP_Software_Project\STM32L073RZTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="MBTCP_Software_Project.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: MBTCP_Software_Project.elf
+ 
+arm-none-eabi-objdump -h -S  MBTCP_Software_Project.elf  > "MBTCP_Software_Project.list"
 arm-none-eabi-objcopy  -O srec  MBTCP_Software_Project.elf  "MBTCP_Software_Project.srec"
+arm-none-eabi-size   MBTCP_Software_Project.elf 
    text	   data	    bss	    dec	    hex	filename
    5640	     12	   1572	   7224	   1c38	MBTCP_Software_Project.elf
 Finished building: default.size.stdout
  
 Finished building: MBTCP_Software_Project.srec
+Finished building: MBTCP_Software_Project.list
+ 
  

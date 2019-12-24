@@ -40,8 +40,8 @@ MBTCP_Software_Project.srec \
 all: MBTCP_Software_Project.elf secondary-outputs
 
 # Tool invocations
-MBTCP_Software_Project.elf: $(OBJS) $(USER_OBJS) C:\Users\eoberholzer\Documents\Projects\Modbus\ TCP_IP\ Weather\ Device\Software\MBTCP_Software_Project\MBTCP_Software_Project\STM32L073RZTX_FLASH.ld
-	arm-none-eabi-gcc -o "MBTCP_Software_Project.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m0plus -T"C:\Users\eoberholzer\Documents\Projects\Modbus TCP_IP Weather Device\Software\MBTCP_Software_Project\MBTCP_Software_Project\STM32L073RZTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="MBTCP_Software_Project.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+MBTCP_Software_Project.elf: $(OBJS) $(USER_OBJS) C:\Users\eoberholzer\Documents\Projects\Modbus\ TCP_IP\ Weather\ Device\Software\Git\MBTCP_Software_Project\MBTCP_Software_Project\STM32L073RZTX_FLASH.ld
+	arm-none-eabi-gcc -o "MBTCP_Software_Project.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m0plus -T"C:\Users\eoberholzer\Documents\Projects\Modbus TCP_IP Weather Device\Software\Git\MBTCP_Software_Project\MBTCP_Software_Project\STM32L073RZTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="MBTCP_Software_Project.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
