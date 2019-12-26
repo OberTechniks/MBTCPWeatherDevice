@@ -1,17 +1,70 @@
-18:32:34 **** Incremental Build of configuration Debug for project MBTCP_Software_Project ****
-make -j4 all 
+22:09:28 **** Incremental Build of configuration Debug for project MBTCP_Software_Project ****
+make -j2 all 
 arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m0plus -std=gnu11 -g3 -DUSE_HAL_DRIVER -DSTM32L073xx -DDEBUG -c -I../Drivers/CMSIS/Include -I../Core/Inc -I../Drivers/STM32L0xx_HAL_Driver/Inc -I../Drivers/CMSIS/Device/ST/STM32L0xx/Include -I../Drivers/STM32L0xx_HAL_Driver/Inc/Legacy -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfloat-abi=soft -mthumb -o "Core/Src/main.o"
-arm-none-eabi-gcc -o "MBTCP_Software_Project.elf" @"objects.list"   -mcpu=cortex-m0plus -T"C:\Users\eoberholzer\Documents\Projects\Modbus TCP_IP Weather Device\Software\Git\MBTCP_Software_Project\MBTCP_Software_Project\STM32L073RZTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="MBTCP_Software_Project.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+../Core/Src/main.c: In function 'main':
+../Core/Src/main.c:117:57: warning: excess elements in array initializer
+   uint8_t HAL_BUSY_Buffer[6] = {72, 65, 76, 32, 66, 85, 83, 89};
+                                                         ^~
+../Core/Src/main.c:117:57: note: (near initialization for 'HAL_BUSY_Buffer')
+../Core/Src/main.c:117:61: warning: excess elements in array initializer
+   uint8_t HAL_BUSY_Buffer[6] = {72, 65, 76, 32, 66, 85, 83, 89};
+                                                             ^~
+../Core/Src/main.c:117:61: note: (near initialization for 'HAL_BUSY_Buffer')
+../Core/Src/main.c:154:50: warning: passing argument 2 of 'HAL_SPI_TransmitReceive' from incompatible pointer type [-Wincompatible-pointer-types]
+    SPI1_STATUS = HAL_SPI_TransmitReceive(&hspi1, &TxData, &RxData, 5, timeout);
+                                                  ^
+In file included from ../Core/Inc/stm32l0xx_hal_conf.h:239:0,
+                 from ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal.h:30,
+                 from ../Core/Inc/main.h:31,
+                 from ../Core/Src/main.c:22:
+../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_spi.h:672:19: note: expected 'uint8_t * {aka unsigned char *}' but argument is of type 'uint8_t (*)[5] {aka unsigned char (*)[5]}'
+ HAL_StatusTypeDef HAL_SPI_TransmitReceive(SPI_HandleTypeDef *hspi, uint8_t *pTxData, uint8_t *pRxData, uint16_t Size,
+                   ^~~~~~~~~~~~~~~~~~~~~~~
+../Core/Src/main.c:154:59: warning: passing argument 3 of 'HAL_SPI_TransmitReceive' from incompatible pointer type [-Wincompatible-pointer-types]
+    SPI1_STATUS = HAL_SPI_TransmitReceive(&hspi1, &TxData, &RxData, 5, timeout);
+                                                           ^
+In file included from ../Core/Inc/stm32l0xx_hal_conf.h:239:0,
+                 from ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal.h:30,
+                 from ../Core/Inc/main.h:31,
+                 from ../Core/Src/main.c:22:
+../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_spi.h:672:19: note: expected 'uint8_t * {aka unsigned char *}' but argument is of type 'uint8_t (*)[5] {aka unsigned char (*)[5]}'
+ HAL_StatusTypeDef HAL_SPI_TransmitReceive(SPI_HandleTypeDef *hspi, uint8_t *pTxData, uint8_t *pRxData, uint16_t Size,
+                   ^~~~~~~~~~~~~~~~~~~~~~~
+../Core/Src/main.c:139:8: warning: unused variable 'data' [-Wunused-variable]
+   char data[6] = "";
+        ^~~~
+../Core/Src/main.c:138:11: warning: unused variable 'RDID' [-Wunused-variable]
+   uint8_t RDID = 0x9F; // Read Device ID
+           ^~~~
+../Core/Src/main.c:137:11: warning: unused variable 'WRITE' [-Wunused-variable]
+   uint8_t WRITE = 0x02; // Write memory code
+           ^~~~~
+../Core/Src/main.c:136:11: warning: unused variable 'READ' [-Wunused-variable]
+   uint8_t READ = 0x03; // Read memory code
+           ^~~~
+../Core/Src/main.c:135:11: warning: unused variable 'WRSR' [-Wunused-variable]
+   uint8_t WRSR = 0x01; // Write Status Register
+           ^~~~
+../Core/Src/main.c:134:11: warning: unused variable 'RDSR' [-Wunused-variable]
+   uint8_t RDSR = 0x05; // Read Status Register
+           ^~~~
+../Core/Src/main.c:133:11: warning: unused variable 'WRDI' [-Wunused-variable]
+   uint8_t WRDI = 0x04; // Reset Write Enable Latch, WRSR and WRITE commands are not executed while Write Enable is reset
+           ^~~~
+../Core/Src/main.c:132:11: warning: unused variable 'WREN' [-Wunused-variable]
+   uint8_t WREN = 0x06; // Set Write Enable Latch, must be set before WRSR or WRITE commands are executed
+           ^~~~
+arm-none-eabi-gcc -o "MBTCP_Software_Project.elf" @"objects.list"   -mcpu=cortex-m0plus -T"C:\Users\eober\Documents\Git Repos\MBTCPWeatherDevice\MBTCP_Software_Project\MBTCP_Software_Project\STM32L073RZTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="MBTCP_Software_Project.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 Finished building target: MBTCP_Software_Project.elf
  
 arm-none-eabi-objdump -h -S  MBTCP_Software_Project.elf  > "MBTCP_Software_Project.list"
 arm-none-eabi-objcopy  -O srec  MBTCP_Software_Project.elf  "MBTCP_Software_Project.srec"
-arm-none-eabi-size   MBTCP_Software_Project.elf 
-   text	   data	    bss	    dec	    hex	filename
-   5640	     12	   1572	   7224	   1c38	MBTCP_Software_Project.elf
-Finished building: default.size.stdout
- 
 Finished building: MBTCP_Software_Project.srec
 Finished building: MBTCP_Software_Project.list
  
+arm-none-eabi-size   MBTCP_Software_Project.elf 
+ 
+   text	   data	    bss	    dec	    hex	filename
+  14140	     12	   1876	  16028	   3e9c	MBTCP_Software_Project.elf
+Finished building: default.size.stdout
  
