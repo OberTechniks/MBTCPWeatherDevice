@@ -1,0 +1,163 @@
+int main(void)
+{
+  /* USER CODE BEGIN 1 */
+
+  /* USER CODE END 1 */
+  
+
+  /* MCU Configuration--------------------------------------------------------*/
+
+  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+  HAL_Init();
+
+  /* USER CODE BEGIN Init */
+
+  /* USER CODE END Init */
+
+  /* Configure the system clock */
+  SystemClock_Config();
+
+  /* USER CODE BEGIN SysInit */
+
+  /* USER CODE END SysInit */
+
+  /* Initialize all configured peripherals */
+  MX_GPIO_Init();
+  MX_ADC_Init();
+  MX_SPI1_Init();
+  MX_USART2_UART_Init();
+  /* USER CODE BEGIN 2 */
+
+  uint32_t timeout = 10000;
+
+  // turn on the led
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, GPIO_PIN_SET);
+
+  // buffer for HAL_OK message
+  uint8_t HAL_OK_Buffer[6] = {72, 65, 76, 32, 79, 75};
+
+  // buffer for HAL_ERROR message
+  uint8_t HAL_ERROR_Buffer[9] = {72, 65, 76, 32, 69, 82, 82, 79, 82};
+
+  // buffer for HAL_BUSY message
+  uint8_t HAL_BUSY_Buffer[8] = {72, 65, 76, 32, 66, 85, 83, 89};
+
+  // buffer for HAL_TIMEOUT message
+  uint8_t HAL_TIMEOUT_Buffer[11] = {72, 65, 76, 32, 84, 73, 77, 69, 79, 85, 84};
+
+  // buffer for carriage return and line feed characters
+  uint8_t crlfBuffer[2] = {13, 10};
+
+  // UART2 status object
+  HAL_StatusTypeDef UART2_STATUS;
+
+  // SPI1 status object
+  HAL_StatusTypeDef SPI1_STATUS;
+
+  // FRAM SPI Op-Codes
+   uint8_t WREN = 0x06;	// Set Write Enable Latch, must be set before WRSR or WRITE commands are executed
+   uint8_t WRDI = 0x04;	// Reset Write Enable Latch, WRSR and WRITE commands are not executed while Write Enable is reset
+  // uint8_t RDSR = 0x05;	// Read Status Register
+  // uint8_t WRSR = 0x01;	// Write Status Register
+   uint8_t READ = 0x03;	// Read memory code
+   uint8_t WRITE = 0x02; // Write memory code
+  // uint8_t RDID = 0x9F;	// Read Device ID
+
+  /* USER CODE END 2 */
+
+  /* Infinite loop */
+  /* USER CODE BEGIN WHILE */
+  while (1)
+  {
+
+	  uint8_t TxDummyData = 0x0A;
+	  uint8_t RxDummyData = 0x0B;
+	  uint8_t AddrHighByte = 0x0A;
+	  uint8_t AddrLowByte = 0xAA;
+	  uint8_t OneByteWriteData = 0x23;
+	  uint8_t OneByteReadData = 0xFF;
+
+    /* USER CODE END WHILE */
+	  // Packets to send over SPI
+	  // #1. Write Enable packet = WREN
+	  uint8_t FirstTxData[1] = {WREN};
+	  uint8_t FirstRxData[1] = {RxDummyData};
+	  uint8_t FirstSize = 1;
+	  // #2. Write data to memory cell packet = Write Op Code + AddrHighByte + AddrLowbyte + OneByteData
+	  uint8_t SecondTxData[4] = {WRITE, AddrHighByte, AddrLowByte, OneByteWriteData};
+	  uint8_t SecondRxData[4] = {RxDummyData, RxDummyData, RxDummyData, RxDummyData};
+	  uint8_t SecondSize = 4;
+	  // #3. Write Enable Reset packet = WRDI
+	  uint8_t ThirdTxData[1] = {WRDI};
+	  uint8_t ThirdRxData[1] = {RxDummyData};
+	  uint8_t ThirdSize = 1;
+	  // #4. Read data from memory cell packet = Read Op Code + AddrHighByte + AddrLowByte + Dummy Data
+	  // The valid received data byte is placed in the last byte of the received packet
+	  uint8_t FourthTxData[4] = {READ, AddrHighByte, AddrLowByte, TxDummyData};
+	  uint8_t FourthRxData[4] = {RxDummyData, RxDummyData, RxDummyData, OneByteReadData};
+	  uint8_t FourthSize = 4;
+
+	  // SPI transaction #1
+	  //HAL_GPIO_WritePin(GPIOC, GPIO_PIN_11, GPIO_PIN_RESET);	// set chip select low
+	  //SPI1_STATUS = HAL_SPI_TransmitReceive(&hspi1, FirstTxData, FirstRxData, FirstSize, timeout);
+	  //HAL_GPIO_WritePin(GPIOC, GPIO_PIN_11, GPIO_PIN_SET);
+
+	  // SPI transaction #2
+	  //HAL_GPIO_WritePin(GPIOC, GPIO_PIN_11, GPIO_PIN_RESET);	// set chip select low
+	  //SPI1_STATUS = HAL_SPI_TransmitReceive(&hspi1, SecondTxData, SecondRxData, SecondSize, timeout);
+	  //HAL_GPIO_WritePin(GPIOC, GPIO_PIN_11, GPIO_PIN_SET);
+
+	  // SPI transaction #3
+	  //HAL_GPIO_WritePin(GPIOC, GPIO_PIN_11, GPIO_PIN_RESET);	// set chip select low
+	  //SPI1_STATUS = HAL_SPI_TransmitReceive(&hspi1, ThirdTxData, ThirdRxData, ThirdSize, timeout);
+	 // HAL_GPIO_WritePin(GPIOC, GPIO_PIN_11, GPIO_PIN_SET);
+
+	  // SPI transaction #4
+	  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_11, GPIO_PIN_RESET);	// set chip select low
+	  SPI1_STATUS = HAL_SPI_TransmitReceive(&hspi1, FourthTxData, FourthRxData, FourthSize, timeout);
+	  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_11, GPIO_PIN_SET);
+
+	  // Evaluate if HAL functions were successful
+	  if(SPI1_STATUS == HAL_OK)
+	  {
+		  // Seems like it was successful
+		  // Extract the data and send the data out the serial port
+		  UART2_STATUS = HAL_UART_Transmit(&huart2, HAL_OK_Buffer, sizeof(HAL_OK_Buffer), timeout);
+		  UART2_STATUS = HAL_UART_Transmit(&huart2, crlfBuffer, sizeof(crlfBuffer), timeout);
+
+		  uint8_t RX_DATA[1] = {FourthRxData[3]};
+		  //sprintf(data, "%d", RxData);
+		  UART2_STATUS = HAL_UART_Transmit(&huart2, RX_DATA, sizeof(RX_DATA), timeout);
+		  UART2_STATUS = HAL_UART_Transmit(&huart2, crlfBuffer, sizeof(crlfBuffer), timeout);
+	  }
+	  else if(SPI1_STATUS == HAL_ERROR)
+	  {
+		  // There was an error, send it out the serial port
+		  UART2_STATUS = HAL_UART_Transmit(&huart2, HAL_ERROR_Buffer, sizeof(HAL_ERROR_Buffer), timeout);
+		  UART2_STATUS = HAL_UART_Transmit(&huart2, crlfBuffer, sizeof(crlfBuffer), timeout);
+	  }
+	  else if(SPI1_STATUS == HAL_BUSY)
+	  {
+		  // HAL is busy, send it out the serial port
+		  UART2_STATUS = HAL_UART_Transmit(&huart2, HAL_BUSY_Buffer, sizeof(HAL_BUSY_Buffer), timeout);
+		  UART2_STATUS = HAL_UART_Transmit(&huart2, crlfBuffer, sizeof(crlfBuffer), timeout);
+	  }
+	  else if(SPI1_STATUS == HAL_TIMEOUT)
+	  {
+		  // There was a HAL timeout, send it out the serial port
+		  UART2_STATUS = HAL_UART_Transmit(&huart2, HAL_TIMEOUT_Buffer, sizeof(HAL_TIMEOUT_Buffer), timeout);
+		  UART2_STATUS = HAL_UART_Transmit(&huart2, crlfBuffer, sizeof(crlfBuffer), timeout);
+	  }
+
+	  if(UART2_STATUS == HAL_OK)
+	  {
+		  // do nothing, just to avoid a build warning
+	  }
+
+	  // Delay a while before trying again
+	  HAL_Delay(2000);
+
+    /* USER CODE BEGIN 3 */
+  }
+  /* USER CODE END 3 */
+}

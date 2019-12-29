@@ -1,17 +1,17 @@
 [PreviousGenFiles]
 AdvancedFolderStructure=true
 HeaderFileListSize=3
-HeaderFiles#0=C:/Users/eober/Documents/Git Repos/MBTCPWeatherDevice/MBTCP_Software_Project/MBTCP_Software_Project/Core/Inc/stm32l0xx_it.h
-HeaderFiles#1=C:/Users/eober/Documents/Git Repos/MBTCPWeatherDevice/MBTCP_Software_Project/MBTCP_Software_Project/Core/Inc/stm32l0xx_hal_conf.h
-HeaderFiles#2=C:/Users/eober/Documents/Git Repos/MBTCPWeatherDevice/MBTCP_Software_Project/MBTCP_Software_Project/Core/Inc/main.h
+HeaderFiles#0=C:/Users/eoberholzer/Documents/Projects/Modbus TCP_IP Weather Device/Software/Git/MBTCP_Software_Project/MBTCP_Software_Project/Core/Inc/stm32l0xx_it.h
+HeaderFiles#1=C:/Users/eoberholzer/Documents/Projects/Modbus TCP_IP Weather Device/Software/Git/MBTCP_Software_Project/MBTCP_Software_Project/Core/Inc/stm32l0xx_hal_conf.h
+HeaderFiles#2=C:/Users/eoberholzer/Documents/Projects/Modbus TCP_IP Weather Device/Software/Git/MBTCP_Software_Project/MBTCP_Software_Project/Core/Inc/main.h
 HeaderFolderListSize=1
-HeaderPath#0=C:/Users/eober/Documents/Git Repos/MBTCPWeatherDevice/MBTCP_Software_Project/MBTCP_Software_Project/Core/Inc
+HeaderPath#0=C:/Users/eoberholzer/Documents/Projects/Modbus TCP_IP Weather Device/Software/Git/MBTCP_Software_Project/MBTCP_Software_Project/Core/Inc
 SourceFileListSize=3
-SourceFiles#0=C:/Users/eober/Documents/Git Repos/MBTCPWeatherDevice/MBTCP_Software_Project/MBTCP_Software_Project/Core/Src/stm32l0xx_it.c
-SourceFiles#1=C:/Users/eober/Documents/Git Repos/MBTCPWeatherDevice/MBTCP_Software_Project/MBTCP_Software_Project/Core/Src/stm32l0xx_hal_msp.c
-SourceFiles#2=C:/Users/eober/Documents/Git Repos/MBTCPWeatherDevice/MBTCP_Software_Project/MBTCP_Software_Project/Core/Src/main.c
+SourceFiles#0=C:/Users/eoberholzer/Documents/Projects/Modbus TCP_IP Weather Device/Software/Git/MBTCP_Software_Project/MBTCP_Software_Project/Core/Src/stm32l0xx_it.c
+SourceFiles#1=C:/Users/eoberholzer/Documents/Projects/Modbus TCP_IP Weather Device/Software/Git/MBTCP_Software_Project/MBTCP_Software_Project/Core/Src/stm32l0xx_hal_msp.c
+SourceFiles#2=C:/Users/eoberholzer/Documents/Projects/Modbus TCP_IP Weather Device/Software/Git/MBTCP_Software_Project/MBTCP_Software_Project/Core/Src/main.c
 SourceFolderListSize=1
-SourcePath#0=C:/Users/eober/Documents/Git Repos/MBTCPWeatherDevice/MBTCP_Software_Project/MBTCP_Software_Project/Core/Src
+SourcePath#0=C:/Users/eoberholzer/Documents/Projects/Modbus TCP_IP Weather Device/Software/Git/MBTCP_Software_Project/MBTCP_Software_Project/Core/Src
 HeaderFiles=;
 SourceFiles=;
 

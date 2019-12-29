@@ -1,0 +1,215 @@
+int main(void)
+{
+  /* USER CODE BEGIN 1 */
+
+  /* USER CODE END 1 */
+  
+
+  /* MCU Configuration--------------------------------------------------------*/
+
+  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+  HAL_Init();
+
+  /* USER CODE BEGIN Init */
+
+  /* USER CODE END Init */
+
+  /* Configure the system clock */
+  SystemClock_Config();
+
+  /* USER CODE BEGIN SysInit */
+
+  /* USER CODE END SysInit */
+
+  /* Initialize all configured peripherals */
+  MX_GPIO_Init();
+  MX_ADC_Init();
+  MX_I2C1_Init();
+  MX_SPI1_Init();
+  MX_USART2_UART_Init();
+  /* USER CODE BEGIN 2 */
+
+  // buffer for HAL_OK message
+  uint8_t HAL_OK_Buffer[6] = {72, 65, 76, 32, 79, 75};
+
+  // buffer for HAL_ERROR message
+  uint8_t HAL_ERROR_Buffer[9] = {72, 65, 76, 32, 69, 82, 82, 79, 82};
+
+  // buffer for HAL_BUSY message
+  uint8_t HAL_BUSY_Buffer[8] = {72, 65, 76, 32, 66, 85, 83, 89};
+
+  // buffer for HAL_TIMEOUT message
+  uint8_t HAL_TIMEOUT_Buffer[11] = {72, 65, 76, 32, 84, 73, 77, 69, 79, 85, 84};
+
+  // buffer for carriage return and line feed characters
+  uint8_t crlfBuffer[2] = {13, 10};
+
+  // UART2 status object
+  HAL_StatusTypeDef UART2_STATUS;
+  // I2C1 status object
+  HAL_StatusTypeDef I2C1_STATUS;
+  // HAL timeout value
+  uint32_t timeout = 10000;
+
+  // MCP7940 codes
+  uint8_t address = 0x6F << 1;	// 7 bit addresss with LSB used to indicated Read or Write operation, this bit is automatically manipulated by the HAL library for a Tx or Rx function
+  uint8_t controlRegAddr = 0x07;	// address of control register
+  uint8_t controlRegDataHigh = 0x80;	// data to write to the control register to set MFPP high = 0b1000 0000
+  uint8_t controlRegDataLow = 0x00;		// data to write to the cnotrol register to set MFPP low = 0b0000 0000
+  uint8_t dataToWrite[2] = {0, 0};
+  uint8_t dataToRead[1] = {0xAA};
+  /* USER CODE END 2 */
+
+
+  // Start oscillator bit, should start the RTC seconds to increment
+  // Write the RTCC MFPP to be a LOW gpio
+  dataToWrite[0] = 0x00;
+  dataToWrite[1] = 0x81;
+  I2C1_STATUS = HAL_I2C_Master_Transmit(&hi2c1, address, dataToWrite, 2, HAL_MAX_DELAY);
+
+  /* Infinite loop */
+  /* USER CODE BEGIN WHILE */
+  while (1)
+  {
+	  // Reset the read data buffer
+	  dataToRead[0] = 0xAA;
+
+	  // Write the RTCC MFPP to be a LOW gpio
+	  dataToWrite[0] = controlRegAddr;
+	  dataToWrite[1] = controlRegDataLow;
+	  I2C1_STATUS = HAL_I2C_Master_Transmit(&hi2c1, address, dataToWrite, 2, HAL_MAX_DELAY);
+
+	  // Delay a bit before reading
+	  HAL_Delay(500);
+	  // Read the register, expect it to be 0x00
+	  I2C1_STATUS = HAL_I2C_Master_Transmit(&hi2c1, address, 0x00, 1, HAL_MAX_DELAY);
+	  I2C1_STATUS = HAL_I2C_Master_Receive(&hi2c1, address, dataToRead, 1, HAL_MAX_DELAY);
+
+	  // Check if our write was successful
+	  if (I2C1_STATUS == HAL_OK)
+	  {
+		  // Seems ok, send message out the serial port
+		  UART2_STATUS = HAL_UART_Transmit(&huart2, HAL_OK_Buffer, sizeof(HAL_OK_Buffer), timeout);
+		  UART2_STATUS = HAL_UART_Transmit(&huart2, crlfBuffer, sizeof(crlfBuffer), timeout);
+
+		  // Send out the data that we read
+		  UART2_STATUS = HAL_UART_Transmit(&huart2, dataToRead, sizeof(dataToRead), timeout);
+		  UART2_STATUS = HAL_UART_Transmit(&huart2, crlfBuffer, sizeof(crlfBuffer), timeout);
+
+		  // Set the LED to indicate the state of the MFPP gpio pin
+		  if(HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_8) == GPIO_PIN_SET)
+		  {
+			  // turn on the led
+			  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, GPIO_PIN_SET);
+		  }
+		  else if (HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_8) == GPIO_PIN_RESET)
+		  {
+			  // turn off the led
+			  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, GPIO_PIN_RESET);
+		  }
+		  else
+		  {
+			  // should never get here, do nothing
+		  }
+	  }
+	  else if (I2C1_STATUS == HAL_ERROR)
+	  {
+		  // There was an error, send it out the serial port
+		  UART2_STATUS = HAL_UART_Transmit(&huart2, HAL_ERROR_Buffer, sizeof(HAL_ERROR_Buffer), timeout);
+		  UART2_STATUS = HAL_UART_Transmit(&huart2, crlfBuffer, sizeof(crlfBuffer), timeout);
+	  }
+	  else if (I2C1_STATUS == HAL_BUSY)
+	  {
+		  // HAL is busy, send it out the serial port
+		  UART2_STATUS = HAL_UART_Transmit(&huart2, HAL_BUSY_Buffer, sizeof(HAL_BUSY_Buffer), timeout);
+		  UART2_STATUS = HAL_UART_Transmit(&huart2, crlfBuffer, sizeof(crlfBuffer), timeout);
+	  }
+	  else if (I2C1_STATUS == HAL_TIMEOUT)
+	  {
+		  // There was a HAL timeout, send it out the serial port
+		  UART2_STATUS = HAL_UART_Transmit(&huart2, HAL_TIMEOUT_Buffer, sizeof(HAL_TIMEOUT_Buffer), timeout);
+		  UART2_STATUS = HAL_UART_Transmit(&huart2, crlfBuffer, sizeof(crlfBuffer), timeout);
+	  }
+
+	  if(UART2_STATUS == HAL_OK)
+	  {
+		  // do nothing, just to avoid a build warning
+	  }
+
+	  // Delay a while before trying again
+	  HAL_Delay(2000);
+
+	  // Reset the read data buffer
+	  dataToRead[0] = 0xAA;
+
+	  // Write the RTCC MFPP to be a HIGH gpio
+	  dataToWrite[0] = controlRegAddr;
+	  dataToWrite[1] = controlRegDataHigh;
+	  I2C1_STATUS = HAL_I2C_Master_Transmit(&hi2c1, address, dataToWrite, 2, HAL_MAX_DELAY);
+
+	  // Delay a bit before reading
+	  HAL_Delay(500);
+	  // Read the register, expect it to be 0x80
+	  I2C1_STATUS = HAL_I2C_Master_Transmit(&hi2c1, address, 0x00, 1, HAL_MAX_DELAY);
+	  I2C1_STATUS = HAL_I2C_Master_Receive(&hi2c1, address, dataToRead, 1, HAL_MAX_DELAY);
+
+	  // Check if our write was successful
+	  if (I2C1_STATUS == HAL_OK)
+	  {
+		  // Seems ok, send message out the serial port
+		  UART2_STATUS = HAL_UART_Transmit(&huart2, HAL_OK_Buffer, sizeof(HAL_OK_Buffer), timeout);
+		  UART2_STATUS = HAL_UART_Transmit(&huart2, crlfBuffer, sizeof(crlfBuffer), timeout);
+
+		  // Send out the data that we read
+		  UART2_STATUS = HAL_UART_Transmit(&huart2, dataToRead, sizeof(dataToRead), timeout);
+		  UART2_STATUS = HAL_UART_Transmit(&huart2, crlfBuffer, sizeof(crlfBuffer), timeout);
+
+		  // Set the LED to indicate the state of the MFPP gpio pin
+		  if(HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_8) == GPIO_PIN_SET)
+		  {
+			  // turn on the led
+			  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, GPIO_PIN_SET);
+		  }
+		  else if (HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_8) == GPIO_PIN_RESET)
+		  {
+			  // turn off the led
+			  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, GPIO_PIN_RESET);
+		  }
+		  else
+		  {
+			  // should never get here, do nothing
+		  }
+	  }
+	  else if (I2C1_STATUS == HAL_ERROR)
+	  {
+		  // There was an error, send it out the serial port
+		  UART2_STATUS = HAL_UART_Transmit(&huart2, HAL_ERROR_Buffer, sizeof(HAL_ERROR_Buffer), timeout);
+		  UART2_STATUS = HAL_UART_Transmit(&huart2, crlfBuffer, sizeof(crlfBuffer), timeout);
+	  }
+	  else if (I2C1_STATUS == HAL_BUSY)
+	  {
+		  // HAL is busy, send it out the serial port
+		  UART2_STATUS = HAL_UART_Transmit(&huart2, HAL_BUSY_Buffer, sizeof(HAL_BUSY_Buffer), timeout);
+		  UART2_STATUS = HAL_UART_Transmit(&huart2, crlfBuffer, sizeof(crlfBuffer), timeout);
+	  }
+	  else if (I2C1_STATUS == HAL_TIMEOUT)
+	  {
+		  // There was a HAL timeout, send it out the serial port
+		  UART2_STATUS = HAL_UART_Transmit(&huart2, HAL_TIMEOUT_Buffer, sizeof(HAL_TIMEOUT_Buffer), timeout);
+		  UART2_STATUS = HAL_UART_Transmit(&huart2, crlfBuffer, sizeof(crlfBuffer), timeout);
+	  }
+
+	  if(UART2_STATUS == HAL_OK)
+	  {
+		  // do nothing, just to avoid a build warning
+	  }
+
+	  // Delay a while before trying again
+	  HAL_Delay(2000);
+
+    /* USER CODE END WHILE */
+
+    /* USER CODE BEGIN 3 */
+  }
+  /* USER CODE END 3 */
+}
