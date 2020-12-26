@@ -1,20 +1,27 @@
-22:34:35 **** Incremental Build of configuration Debug for project MBTCP_Software_Project ****
+19:05:00 **** Incremental Build of configuration Debug for project MBTCP_Software_Project ****
 make -j4 all 
 arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m0plus -std=gnu11 -g3 -DUSE_HAL_DRIVER -DSTM32L073xx -DDEBUG -c -I../Drivers/CMSIS/Include -I../Core/Inc -I../Drivers/STM32L0xx_HAL_Driver/Inc -I../Drivers/CMSIS/Device/ST/STM32L0xx/Include -I../Drivers/STM32L0xx_HAL_Driver/Inc/Legacy -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfloat-abi=soft -mthumb -o "Core/Src/main.o"
 ../Core/Src/main.c: In function 'main':
-../Core/Src/main.c:117:21: warning: unused variable 'I2C1_STATUS' [-Wunused-variable]
-   HAL_StatusTypeDef I2C1_STATUS;             // I2C1 status object
-                     ^~~~~~~~~~~
-../Core/Src/main.c:114:11: warning: unused variable 'HAL_TIMEOUT_Buffer' [-Wunused-variable]
+../Core/Src/main.c:166:47: warning: passing argument 2 of 'HAL_UART_Transmit' from incompatible pointer type [-Wincompatible-pointer-types]
+     UART2_STATUS = HAL_UART_Transmit(&huart2, &address, 2, timeout);
+                                               ^
+In file included from ../Core/Inc/stm32l0xx_hal_conf.h:251:0,
+                 from ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal.h:30,
+                 from ../Core/Inc/main.h:31,
+                 from ../Core/Src/main.c:22:
+../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_uart.h:1408:19: note: expected 'uint8_t * {aka unsigned char *}' but argument is of type 'uint16_t * {aka short unsigned int *}'
+ HAL_StatusTypeDef HAL_UART_Transmit(UART_HandleTypeDef *huart, uint8_t *pData, uint16_t Size, uint32_t Timeout);
+                   ^~~~~~~~~~~~~~~~~
+../Core/Src/main.c:115:11: warning: unused variable 'HAL_TIMEOUT_Buffer' [-Wunused-variable]
    uint8_t HAL_TIMEOUT_Buffer[11] = {72, 65, 76, 32, 84, 73, 77, 69, 79, 85, 84}; // Buffer for HAL_TIMEOUT message
            ^~~~~~~~~~~~~~~~~~
-../Core/Src/main.c:113:11: warning: unused variable 'HAL_BUSY_Buffer' [-Wunused-variable]
+../Core/Src/main.c:114:11: warning: unused variable 'HAL_BUSY_Buffer' [-Wunused-variable]
    uint8_t HAL_BUSY_Buffer[8] = {72, 65, 76, 32, 66, 85, 83, 89};     // Buffer for HAL_BUSY message
            ^~~~~~~~~~~~~~~
-../Core/Src/main.c:112:11: warning: unused variable 'HAL_ERROR_Buffer' [-Wunused-variable]
+../Core/Src/main.c:113:11: warning: unused variable 'HAL_ERROR_Buffer' [-Wunused-variable]
    uint8_t HAL_ERROR_Buffer[9] = {72, 65, 76, 32, 69, 82, 82, 79, 82};    // Buffer for HAL_ERROR message
            ^~~~~~~~~~~~~~~~
-../Core/Src/main.c:111:11: warning: unused variable 'HAL_OK_Buffer' [-Wunused-variable]
+../Core/Src/main.c:112:11: warning: unused variable 'HAL_OK_Buffer' [-Wunused-variable]
    uint8_t HAL_OK_Buffer[6] = {72, 65, 76, 32, 79, 75};        // Buffer for HAL_OK message
            ^~~~~~~~~~~~~
 arm-none-eabi-gcc -o "MBTCP_Software_Project.elf" @"objects.list"   -mcpu=cortex-m0plus -T"C:\Users\eoberholzer\Documents\Projects\Modbus TCP_IP Weather Device\Software\Git\MBTCP_Software_Project\MBTCP_Software_Project\STM32L073RZTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="MBTCP_Software_Project.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
@@ -24,7 +31,7 @@ arm-none-eabi-objdump -h -S  MBTCP_Software_Project.elf  > "MBTCP_Software_Proje
 arm-none-eabi-objcopy  -O srec  MBTCP_Software_Project.elf  "MBTCP_Software_Project.srec"
 arm-none-eabi-size   MBTCP_Software_Project.elf 
    text	   data	    bss	    dec	    hex	filename
-  13716	     12	   1956	  15684	   3d44	MBTCP_Software_Project.elf
+  15848	     16	   1960	  17824	   45a0	MBTCP_Software_Project.elf
 Finished building: default.size.stdout
  
 Finished building: MBTCP_Software_Project.srec

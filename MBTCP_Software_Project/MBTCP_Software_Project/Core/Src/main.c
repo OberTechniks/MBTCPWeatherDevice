@@ -25,6 +25,7 @@
 /* USER CODE BEGIN Includes */
 #include <string.h>
 #include <stdio.h>
+#include "fram.h"
 
 /* USER CODE END Includes */
 
@@ -114,17 +115,25 @@ int main(void)
   uint8_t HAL_TIMEOUT_Buffer[11] = {72, 65, 76, 32, 84, 73, 77, 69, 79, 85, 84};	// Buffer for HAL_TIMEOUT message
   uint8_t crlfBuffer[2] = {13, 10};													// Buffer for carriage return and line feed characters
   HAL_StatusTypeDef UART2_STATUS;													// UART2 status object
-  HAL_StatusTypeDef I2C1_STATUS;													// I2C1 status object
+  HAL_StatusTypeDef SPI1_STATUS;													// SPI1 status object
   uint32_t timeout = 10000;															// HAL timeout value
   // End HAL Items
   //*************************************************************************************************************
 
   //***************************************************************************************************************
   // Begin board bring-up specific items
-  uint8_t message_ChargeGood[11] = {67, 104, 97, 114, 103, 101, 32, 71, 79, 79, 68};
-  uint8_t message_ChargeBad[10] = {67, 104, 97, 114, 103, 101, 32, 66, 65, 68};
-  uint8_t message_FaultGood[10] = {70, 97, 117, 108, 116, 32, 71, 79, 79, 68};
-  uint8_t message_FaultBad[9] = {70, 97, 117, 108, 116, 32, 66, 65, 68};
+
+  uint8_t writeData = 0x47;
+  uint8_t readData = 0x42;
+  uint16_t address = 0x0000;
+
+  uint8_t writeGoodBuffer[12] = {87, 114, 105, 116, 101, 32, 71, 111, 111, 100, 58, 32};
+  uint8_t writeBadBuffer[9] = {87, 114, 105, 116, 101, 32, 66, 97, 100};
+  uint8_t readGoodData[11] = {82, 101, 97, 100, 32, 68, 97, 116, 97, 58, 32};
+  uint8_t readBadBuffer[9] = {82, 101, 97, 100, 32, 66, 97, 100};
+
+
+
 
   // End board bring-up specific items
   //***************************************************************************************************************
@@ -135,36 +144,48 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  // Toggle the led
-	  HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_5);
+	  // Reset the address and data
+	  writeData = 0x47;
+	  readData = 0x42;
 
-	  // Delay a bit before looping
-	  HAL_Delay(1000);
-
-	  // Check the status of the /CHRG and /FAULT pins, message accordingly
-	  if(HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_0) == GPIO_PIN_SET)
+	  if(address >= 0x1FFF)
 	  {
-		  // Charging pin is good
-		  UART2_STATUS = HAL_UART_Transmit(&huart2, message_ChargeGood, sizeof(message_ChargeGood), timeout);
+		  address = 0x0001;
+	  }
+	  else	// increment the address
+	  {
+		  address = address + 1;
+	  }
+
+	  // Write data to address
+	  SPI1_STATUS = framWrite(&hspi1, address, writeData);
+	  if(SPI1_STATUS == HAL_OK)
+	  {
+		  // Print write was ok
+		  UART2_STATUS = HAL_UART_Transmit(&huart2, writeGoodBuffer, sizeof(writeGoodBuffer), timeout);
+		  UART2_STATUS = HAL_UART_Transmit(&huart2, &address, 2, timeout);
 		  UART2_STATUS = HAL_UART_Transmit(&huart2, crlfBuffer, sizeof(crlfBuffer), timeout);
 	  }
 	  else
 	  {
-		  // Charging pin is not good
-		  UART2_STATUS = HAL_UART_Transmit(&huart2, message_ChargeBad, sizeof(message_ChargeBad), timeout);
+		  // Print write failed
+		  UART2_STATUS = HAL_UART_Transmit(&huart2, writeBadBuffer, sizeof(writeBadBuffer), timeout);
 		  UART2_STATUS = HAL_UART_Transmit(&huart2, crlfBuffer, sizeof(crlfBuffer), timeout);
 	  }
 
-	  if(HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_1) == GPIO_PIN_SET)
+	  // Read the data back and print to serial port
+	  SPI1_STATUS = framRead(&hspi1, address, &readData);
+	  if(SPI1_STATUS == HAL_OK)
 	  {
-		  // Fault pin is good
-		  UART2_STATUS = HAL_UART_Transmit(&huart2, message_FaultGood, sizeof(message_FaultGood), timeout);
+		  // Print read data
+		  UART2_STATUS = HAL_UART_Transmit(&huart2, readGoodData, sizeof(readGoodData), timeout);
+		  UART2_STATUS = HAL_UART_Transmit(&huart2, &readData, 1, timeout);
 		  UART2_STATUS = HAL_UART_Transmit(&huart2, crlfBuffer, sizeof(crlfBuffer), timeout);
 	  }
 	  else
 	  {
-		  // Fault pin is bad
-		  UART2_STATUS = HAL_UART_Transmit(&huart2, message_FaultBad, sizeof(message_FaultBad), timeout);
+		  // Print read failed
+		  UART2_STATUS = HAL_UART_Transmit(&huart2, readBadBuffer, sizeof(readBadBuffer), timeout);
 		  UART2_STATUS = HAL_UART_Transmit(&huart2, crlfBuffer, sizeof(crlfBuffer), timeout);
 	  }
 
@@ -172,6 +193,12 @@ int main(void)
 	  {
 		  // do nothing, just to avoid a build warning
 	  }
+
+	  // Delay a bit before looping
+	  HAL_Delay(250);
+
+	  // Toggle the LED
+	  HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_5);
 
     /* USER CODE END WHILE */
 

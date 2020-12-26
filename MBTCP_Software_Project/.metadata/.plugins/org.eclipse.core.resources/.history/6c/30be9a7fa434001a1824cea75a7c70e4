@@ -1,0 +1,117 @@
+/*
+ * fram.c
+ *
+ *  Created on: Jan 4, 2020
+ *      Author: eoberholzer
+ */
+
+#include "fram.h"
+#include "main.h"
+
+  // FRAM SPI Op-Codes
+   uint8_t WREN = 0x06;	// Set Write Enable Latch, must be set before WRSR or WRITE commands are executed
+   uint8_t WRDI = 0x04;	// Reset Write Enable Latch, WRSR and WRITE commands are not executed while Write Enable is reset
+   uint8_t RDSR = 0x05;	// Read Status Register
+   uint8_t WRSR = 0x01;	// Write Status Register
+   uint8_t READ = 0x03;	// Read memory code
+   uint8_t WRITE = 0x02; // Write memory code
+   uint8_t RDID = 0x9F;	// Read Device ID
+
+   // Read data function
+   HAL_StatusTypeDef framRead(SPI_HandleTypeDef* spiHandle, uint16_t address, uint8_t* dataBuffer)
+   {
+	   // Function variables
+	   uint8_t AddrUpperByte = 0;
+	   uint8_t AddrLowerByte = 0;
+	   uint8_t TxDummyData = 0xFF;
+	   uint8_t RxDummyData = 0xFF;
+	   HAL_StatusTypeDef SPI1_STATUS;
+	   uint32_t timeout = 10000;
+	   uint8_t size = 4;
+
+	   // Separate the address into upper and lower bytes
+	   AddrUpperByte = address >> 8;
+	   AddrLowerByte = address & 0xFF;
+
+	   // Create the SPI data buffers
+	   // Read op-code sequence = Read Op Code + AddrHighByte + AddrLowByte + Dummy Data
+	   uint8_t TxData[4] = {READ, AddrUpperByte, AddrLowerByte, TxDummyData};
+	   uint8_t RxData[4] = {RxDummyData, RxDummyData, RxDummyData, RxDummyData};
+
+	   // Perform SPI transaction
+	   // The valid received data byte is placed in the last byte of the received packet
+	   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_11, GPIO_PIN_RESET);
+	   SPI1_STATUS = HAL_SPI_TransmitReceive(&hspi1, TxData, RxData, size, timeout);
+	   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_11, GPIO_PIN_SET);
+
+	   // Put the read data in the buffer parameter
+	   *dataBuffer = RxData[4];
+
+	   // Return the HAL SPI1 status
+	   return SPI1_STATUS;
+   }
+
+   // Write data function
+   HAL_StatusTypeDef framWrite(SPI_HandleTypeDef* spiHandle, uint16_t address, uint8_t data)
+   {
+	   // Function variables
+	   uint8_t AddrUpperByte = 0;
+	   uint8_t AddrLowerByte = 0;
+	   uint8_t TxDummyData = 0xFF;
+	   uint8_t RxDummyData = 0xFF;
+	   HAL_StatusTypeDef SPI1_STATUS;
+	   uint32_t timeout = 10000;
+	   uint8_t size = 4;
+	   uint8_t TxData[4];
+	   uint8_t RxData[4];
+	   HAL_StatusTypeDef SPI1_STATUS;
+
+	   // Separate the address into upper and lower bytes
+	   AddrUpperByte = address >> 8;
+	   AddrLowerByte = address & 0xFF;
+
+	   // Packets to send over SPI
+	   // #1. Write Enable packet = WREN
+	   TxData[0] = WREN;
+	   RxData[0] = RxDummyData;
+   	   size = 1;
+   	   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_11, GPIO_PIN_RESET);
+   	   SPI1_STATUS = HAL_SPI_TransmitReceive(&hspi1, TxData, RxData, size, timeout);
+   	   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_11, GPIO_PIN_SET);
+   	   HAL_Delay(1);
+   	   if(SPI1_STATUS != HAL_OK)
+   	   {
+   		   return SPI1_STATUS;
+   	   }
+
+
+   	   // #2. Write data to memory cell packet = Write Op Code + AddrHighByte + AddrLowbyte + byte of data to write
+   	   TxData[0] = WRITE;
+   	   TxData[1] = AddrUpperByte;
+   	   TxData[2] = AddrLowerByte;
+   	   TxData[3] = data;
+   	   RxData[0] = RxDummyData;
+   	   RxData[1] = RxDummyData;
+   	   RxData[2] = RxDummyData;
+   	   RxData[3] = RxDummyData;
+   	   size = 4;
+   	   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_11, GPIO_PIN_RESET);
+   	   SPI1_STATUS = HAL_SPI_TransmitReceive(&hspi1, TxData, RxData, size, timeout);
+   	   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_11, GPIO_PIN_SET);
+   	   HAL_Delay(1);
+   	   if(SPI1_STATUS != HAL_OK)
+   	   {
+   		   return SPI1_STATUS;
+   	   }
+
+   	   // #3. Write Enable Reset packet = WRDI
+   	   TxData[0] = WRDI;
+   	   RxData[0] = RxDummyData;
+   	   size = 1;
+   	   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_11, GPIO_PIN_RESET);
+   	   SPI1_STATUS = HAL_SPI_TransmitReceive(&hspi1, TxData, RxData, size, timeout);
+   	   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_11, GPIO_PIN_SET);
+   	   HAL_Delay(1);
+   	   return SPI1_STATUS;
+   }
+
